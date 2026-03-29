@@ -174,7 +174,7 @@ const CATEGORIES = [
     iconColor: '#D97706',
     count: 134,
     isSpecial: true,
-    badge: 'NEW',
+    badge: null,
     subcategories: [
       { name: 'Online shops & e-commerce', slug: 'online-shops' },
       { name: 'Handmade & crafts', slug: 'handmade-crafts' },

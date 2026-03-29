@@ -14,19 +14,36 @@ const TABS = [
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/auth/login?next=/dashboard')
 
-  // Fetch profile + linked business separately (avoids complex FK join)
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, business_id')
-    .eq('id', user.id)
-    .single()
+  // Dev bypass — remove NEXT_PUBLIC_DASHBOARD_DEV_BYPASS before deploying
+  const devBypass = process.env.NEXT_PUBLIC_DASHBOARD_DEV_BYPASS === 'true'
 
-  const { data: business } = profile?.business_id
-    ? await supabase.from('businesses').select('id, name, tier, is_verified, is_claimed').eq('id', profile.business_id).single()
-    : { data: null }
+  let business = null
+
+  if (devBypass) {
+    const { data } = await supabase
+      .from('businesses')
+      .select('id, name, tier, is_verified, is_claimed')
+      .eq('is_active', true)
+      .order('tier', { ascending: false })
+      .limit(1)
+      .single()
+    business = data
+  } else {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) redirect('/auth/login?next=/dashboard')
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, business_id')
+      .eq('id', user.id)
+      .single()
+
+    const { data: biz } = profile?.business_id
+      ? await supabase.from('businesses').select('id, name, tier, is_verified, is_claimed').eq('id', profile.business_id).single()
+      : { data: null }
+    business = biz
+  }
 
   const tierLabel = !business ? null
     : business.tier >= 3 ? 'Pro'

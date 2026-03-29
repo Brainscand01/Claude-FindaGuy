@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createStaticClient } from '@/lib/supabase/static'
 import type { Business, Review } from '@/types'
 import { buildBusinessSchema, buildBreadcrumbSchema } from '@/lib/seo'
+import { WriteReviewModal } from './WriteReviewModal'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -225,12 +226,7 @@ export default async function BusinessProfilePage({ params }: Props) {
                 <h2 className="font-display font-black text-navy text-base">
                   Reviews ({biz.rating_count})
                 </h2>
-                <button
-                  className="text-xs font-medium px-3 py-1.5 rounded-lg text-white transition-opacity hover:opacity-90"
-                  style={{ background: '#0F2D5E' }}
-                >
-                  Write a review
-                </button>
+                <WriteReviewModal businessId={biz.id} businessName={biz.name} />
               </div>
 
               {reviews.length === 0 ? (

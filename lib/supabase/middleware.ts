@@ -39,7 +39,10 @@ export async function updateSession(request: NextRequest) {
   const protectedPaths = ['/dashboard', '/claim']
   const isProtected = protectedPaths.some((p) => pathname.startsWith(p))
 
-  if (isProtected && !user) {
+  // Dev bypass — skip auth check for dashboard when flag is set
+  const dashboardBypass = process.env.NEXT_PUBLIC_DASHBOARD_DEV_BYPASS === 'true' && pathname.startsWith('/dashboard')
+
+  if (isProtected && !user && !dashboardBypass) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
     url.searchParams.set('next', pathname)

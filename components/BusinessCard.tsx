@@ -1,6 +1,25 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { StarRating } from './StarRating'
 import type { Business } from '@/types'
+
+const CATEGORY_EMOJI: Record<string, string> = {
+  'automotive':           '🚗',
+  'beauty-wellness':      '💇',
+  'catering-events':      '🎉',
+  'cleaning-services':    '🧹',
+  'construction-building':'🏗️',
+  'education-tutoring':   '📚',
+  'electrical':           '⚡',
+  'food-restaurants':     '🍕',
+  'health-medical':       '🏥',
+  'home-services':        '🔧',
+  'landscaping-garden':   '🌿',
+  'plumbing':             '🚿',
+  'professional-services':'💼',
+  'security-services':    '🔒',
+  'technology-it':        '💻',
+}
 
 interface BusinessCardProps {
   business: Business
@@ -21,7 +40,7 @@ export function BusinessCard({ business, featured }: BusinessCardProps) {
           style={{ background: '#EFF6FF' }}
           aria-hidden="true"
         >
-          {business.emoji ?? '🏪'}
+          {business.emoji ?? CATEGORY_EMOJI[business.category_slug] ?? '🏪'}
         </div>
         <div className="flex flex-col gap-1 items-end">
           {business.is_verified && (

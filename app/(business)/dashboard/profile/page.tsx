@@ -5,6 +5,24 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Business } from '@/types'
 
+const CATEGORIES = [
+  { slug: 'automotive',            name: 'Automotive',              emoji: '🚗' },
+  { slug: 'beauty-wellness',       name: 'Beauty & Wellness',       emoji: '💇' },
+  { slug: 'catering-events',       name: 'Catering & Events',       emoji: '🎉' },
+  { slug: 'cleaning-services',     name: 'Cleaning Services',       emoji: '🧹' },
+  { slug: 'construction-building', name: 'Construction & Building', emoji: '🏗️' },
+  { slug: 'education-tutoring',    name: 'Education & Tutoring',    emoji: '📚' },
+  { slug: 'electrical',            name: 'Electrical',              emoji: '⚡' },
+  { slug: 'food-restaurants',      name: 'Food & Restaurants',      emoji: '🍕' },
+  { slug: 'health-medical',        name: 'Health & Medical',        emoji: '🏥' },
+  { slug: 'home-services',         name: 'Home Services',           emoji: '🔧' },
+  { slug: 'landscaping-garden',    name: 'Landscaping & Garden',    emoji: '🌿' },
+  { slug: 'plumbing',              name: 'Plumbing',                emoji: '🚿' },
+  { slug: 'professional-services', name: 'Professional Services',   emoji: '💼' },
+  { slug: 'security-services',     name: 'Security Services',       emoji: '🔒' },
+  { slug: 'technology-it',         name: 'Technology & IT',         emoji: '💻' },
+]
+
 // Note: metadata must be in server components; this page is client for form interactivity.
 // The title is set via the layout's document.title or a separate server wrapper.
 
@@ -16,6 +34,20 @@ export default function ProfileEditPage() {
   useEffect(() => {
     async function load() {
       const supabase = createClient()
+      const devBypass = process.env.NEXT_PUBLIC_DASHBOARD_DEV_BYPASS === 'true'
+
+      if (devBypass) {
+        const { data } = await supabase
+          .from('businesses')
+          .select('*')
+          .eq('is_active', true)
+          .order('tier', { ascending: false })
+          .limit(1)
+          .single()
+        if (data) setBiz(data as Business)
+        return
+      }
+
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
       const { data: profile } = await supabase
@@ -44,6 +76,9 @@ export default function ProfileEditPage() {
     const supabase = createClient()
     await supabase.from('businesses').update({
       name: biz.name,
+      category: biz.category,
+      category_slug: biz.category_slug,
+      emoji: biz.emoji,
       phone: biz.phone,
       whatsapp: biz.whatsapp,
       email: biz.email,
@@ -71,6 +106,27 @@ export default function ProfileEditPage() {
       <h1 className="font-display font-black text-navy text-xl mb-6">My Profile</h1>
       <div className="bg-white rounded-xl border border-slate-200 p-6 max-w-2xl">
         <form onSubmit={save} className="space-y-4">
+          {/* Category */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-600 mb-1.5" htmlFor="category">
+              Category
+            </label>
+            <select
+              id="category"
+              value={biz.category_slug ?? ''}
+              onChange={(e) => {
+                const cat = CATEGORIES.find(c => c.slug === e.target.value)
+                if (cat) setBiz(prev => ({ ...prev, category: cat.name, category_slug: cat.slug, emoji: cat.emoji }))
+              }}
+              className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy transition-colors bg-white"
+            >
+              <option value="">— Select a category —</option>
+              {CATEGORIES.map(cat => (
+                <option key={cat.slug} value={cat.slug}>{cat.emoji} {cat.name}</option>
+              ))}
+            </select>
+          </div>
+
           {fields.map((field) => (
             <div key={field.key}>
               <label className="block text-xs font-semibold text-slate-600 mb-1.5" htmlFor={field.key}>

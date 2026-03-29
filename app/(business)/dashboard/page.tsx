@@ -7,18 +7,37 @@ export const metadata: Metadata = { title: 'Dashboard — FindaGuy' }
 
 export default async function DashboardOverviewPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('business_id, full_name')
-    .eq('id', user.id)
-    .single()
+  const devBypass = process.env.NEXT_PUBLIC_DASHBOARD_DEV_BYPASS === 'true'
 
-  const { data: business } = profile?.business_id
-    ? await supabase.from('businesses').select('*').eq('id', profile.business_id).single()
-    : { data: null }
+  let business = null
+  let profile: { business_id: string | null; full_name: string | null } | null = null
+
+  if (devBypass) {
+    const { data } = await supabase
+      .from('businesses')
+      .select('*')
+      .eq('is_active', true)
+      .order('tier', { ascending: false })
+      .limit(1)
+      .single()
+    business = data
+  } else {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+
+    const { data: prof } = await supabase
+      .from('profiles')
+      .select('business_id, full_name')
+      .eq('id', user.id)
+      .single()
+    profile = prof
+
+    const { data: biz } = prof?.business_id
+      ? await supabase.from('businesses').select('*').eq('id', prof.business_id).single()
+      : { data: null }
+    business = biz
+  }
 
   // Last 30 days stats
   const { data: statsRows } = business ? await supabase

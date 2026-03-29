@@ -12,8 +12,6 @@ function LoginForm() {
   const intent = searchParams.get('intent')
 
   const [email, setEmail] = useState('')
-  const [otpSent, setOtpSent] = useState(false)
-  const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -35,29 +33,21 @@ function LoginForm() {
     })
   }
 
-  async function sendOtp(e: React.FormEvent) {
+  async function sendMagicLink(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError('')
-    const { error } = await supabase.auth.signInWithOtp({ email })
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(intent === 'list' ? '/dashboard' : next)}`,
+      },
+    })
     setLoading(false)
     if (error) {
       setError(error.message)
     } else {
-      setOtpSent(true)
-    }
-  }
-
-  async function verifyOtp(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    const { error } = await supabase.auth.verifyOtp({ email, token: otp, type: 'email' })
-    setLoading(false)
-    if (error) {
-      setError(error.message)
-    } else {
-      router.push(intent === 'list' ? '/dashboard' : next)
+      router.push('/auth/verify')
     }
   }
 
@@ -114,62 +104,26 @@ function LoginForm() {
             <div className="flex-1 h-px bg-slate-100" />
           </div>
 
-          {/* Email OTP */}
-          {!otpSent ? (
-            <form onSubmit={sendOtp} className="space-y-3">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-                className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy transition-colors"
-                aria-label="Email address"
-              />
-              <button
-                type="submit"
-                disabled={loading || !email}
-                className="w-full py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
-                style={{ background: '#0F2D5E', color: '#fff' }}
-              >
-                {loading ? 'Sending…' : 'Continue with email'}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={verifyOtp} className="space-y-3">
-              <p className="text-xs text-slate-500 text-center">
-                We sent a 6-digit code to <strong>{email}</strong>
-              </p>
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]{6}"
-                maxLength={6}
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="000000"
-                required
-                className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-center tracking-widest outline-none focus:border-navy transition-colors"
-                aria-label="One-time password"
-                autoFocus
-              />
-              <button
-                type="submit"
-                disabled={loading || otp.length < 6}
-                className="w-full py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
-                style={{ background: '#0F2D5E', color: '#fff' }}
-              >
-                {loading ? 'Verifying…' : 'Verify code'}
-              </button>
-              <button
-                type="button"
-                onClick={() => { setOtpSent(false); setOtp('') }}
-                className="w-full text-xs text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                Use a different email
-              </button>
-            </form>
-          )}
+          {/* Magic link */}
+          <form onSubmit={sendMagicLink} className="space-y-3">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              required
+              className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-navy transition-colors"
+              aria-label="Email address"
+            />
+            <button
+              type="submit"
+              disabled={loading || !email}
+              className="w-full py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
+              style={{ background: '#0F2D5E', color: '#fff' }}
+            >
+              {loading ? 'Sending…' : 'Send sign-in link'}
+            </button>
+          </form>
 
           {error && (
             <p className="mt-3 text-xs text-red-500 text-center" role="alert">{error}</p>

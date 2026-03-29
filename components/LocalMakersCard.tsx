@@ -33,12 +33,6 @@ export function LocalMakersCard() {
                 Local Makers
               </h2>
             </div>
-            <span
-              className="text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap"
-              style={{ background: 'rgba(245,158,11,0.12)', color: '#D97706', border: '1px solid rgba(245,158,11,0.3)' }}
-            >
-              New vertical — big opportunity
-            </span>
           </div>
 
           {/* Subcategory grid */}

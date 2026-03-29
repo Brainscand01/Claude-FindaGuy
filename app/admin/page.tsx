@@ -4,6 +4,24 @@ import { useState, useEffect } from 'react'
 import { CheckCircle, XCircle, Flag, Building2, Star, Clock, RefreshCw } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
+const CATEGORIES = [
+  { slug: 'automotive',            name: 'Automotive',              emoji: '🚗' },
+  { slug: 'beauty-wellness',       name: 'Beauty & Wellness',       emoji: '💇' },
+  { slug: 'catering-events',       name: 'Catering & Events',       emoji: '🎉' },
+  { slug: 'cleaning-services',     name: 'Cleaning Services',       emoji: '🧹' },
+  { slug: 'construction-building', name: 'Construction & Building', emoji: '🏗️' },
+  { slug: 'education-tutoring',    name: 'Education & Tutoring',    emoji: '📚' },
+  { slug: 'electrical',            name: 'Electrical',              emoji: '⚡' },
+  { slug: 'food-restaurants',      name: 'Food & Restaurants',      emoji: '🍕' },
+  { slug: 'health-medical',        name: 'Health & Medical',        emoji: '🏥' },
+  { slug: 'home-services',         name: 'Home Services',           emoji: '🔧' },
+  { slug: 'landscaping-garden',    name: 'Landscaping & Garden',    emoji: '🌿' },
+  { slug: 'plumbing',              name: 'Plumbing',                emoji: '🚿' },
+  { slug: 'professional-services', name: 'Professional Services',   emoji: '💼' },
+  { slug: 'security-services',     name: 'Security Services',       emoji: '🔒' },
+  { slug: 'technology-it',         name: 'Technology & IT',         emoji: '💻' },
+]
+
 // No nav link — accessed directly at /admin
 // Protected by admin role check against profiles table
 
@@ -42,6 +60,7 @@ export default function AdminPage() {
   const [flaggedReviews, setFlaggedReviews] = useState<FlaggedReview[]>([])
   const [loading, setLoading] = useState(true)
   const [acting, setActing] = useState<string | null>(null)
+  const [categoryOverrides, setCategoryOverrides] = useState<Record<string, string>>({})
 
   useEffect(() => {
     checkAdmin()
@@ -53,6 +72,11 @@ export default function AdminPage() {
   }, [isAdmin, tab])
 
   async function checkAdmin() {
+    // Dev bypass — remove before deploying to production
+    if (process.env.NEXT_PUBLIC_ADMIN_DEV_BYPASS === 'true') {
+      setIsAdmin(true)
+      return
+    }
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setIsAdmin(false); return }
@@ -138,7 +162,12 @@ export default function AdminPage() {
   async function verifyBusiness(id: string) {
     setActing(id)
     const supabase = createClient()
-    await supabase.from('businesses').update({ is_verified: true }).eq('id', id)
+    const catSlug = categoryOverrides[id]
+    const cat = catSlug ? CATEGORIES.find(c => c.slug === catSlug) : null
+    await supabase.from('businesses').update({
+      is_verified: true,
+      ...(cat ? { category: cat.name, category_slug: cat.slug, emoji: cat.emoji } : {}),
+    }).eq('id', id)
     setPendingBusinesses(prev => prev.filter(b => b.id !== id))
     setActing(null)
   }
@@ -244,7 +273,17 @@ export default function AdminPage() {
                             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-sky-100 text-sky-700">Claimed</span>
                           )}
                         </div>
-                        <p className="text-xs text-slate-500">{biz.category} · {biz.suburb}</p>
+                        <p className="text-xs text-slate-500 mb-1.5">{biz.suburb}</p>
+                        <select
+                          value={categoryOverrides[biz.id] ?? CATEGORIES.find(c => c.name === biz.category)?.slug ?? ''}
+                          onChange={e => setCategoryOverrides(prev => ({ ...prev, [biz.id]: e.target.value }))}
+                          className="text-xs border border-slate-200 rounded-lg px-2 py-1 outline-none focus:border-navy bg-white mb-1"
+                        >
+                          <option value="">— category —</option>
+                          {CATEGORIES.map(cat => (
+                            <option key={cat.slug} value={cat.slug}>{cat.emoji} {cat.name}</option>
+                          ))}
+                        </select>
                         {biz.phone && <p className="text-xs text-slate-400 mt-0.5">{biz.phone}</p>}
                         <p className="text-[10px] text-slate-300 mt-1 flex items-center gap-1">
                           <Clock size={10} /> {new Date(biz.created_at).toLocaleDateString('en-ZA')}

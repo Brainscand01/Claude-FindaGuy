@@ -20,15 +20,32 @@ export default function PhotosPage() {
   useEffect(() => {
     async function load() {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: profile } = await supabase.from('profiles').select('business_id').eq('id', user.id).single()
-      if (!profile?.business_id) return
-      setBizId(profile.business_id)
+      const devBypass = process.env.NEXT_PUBLIC_DASHBOARD_DEV_BYPASS === 'true'
+
+      let businessId: string | null = null
+
+      if (devBypass) {
+        const { data } = await supabase
+          .from('businesses')
+          .select('id')
+          .eq('is_active', true)
+          .order('tier', { ascending: false })
+          .limit(1)
+          .single()
+        businessId = data?.id ?? null
+      } else {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data: profile } = await supabase.from('profiles').select('business_id').eq('id', user.id).single()
+        businessId = profile?.business_id ?? null
+      }
+
+      if (!businessId) return
+      setBizId(businessId)
 
       const [{ data: biz }, { data: media }] = await Promise.all([
-        supabase.from('businesses').select('logo_url, cover_url').eq('id', profile.business_id).single(),
-        supabase.from('business_media').select('url, type').eq('business_id', profile.business_id),
+        supabase.from('businesses').select('logo_url, cover_url').eq('id', businessId).single(),
+        supabase.from('business_media').select('url, type').eq('business_id', businessId),
       ])
 
       if (biz?.logo_url)  setLogo(biz.logo_url)
