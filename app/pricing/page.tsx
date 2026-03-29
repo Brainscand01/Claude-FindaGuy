@@ -33,9 +33,10 @@ const TIERS = [
     price: 'R299',
     sub: '/mo',
     description: 'A complete profile that builds trust and gets you noticed.',
-    cta: 'Start free trial',
+    cta: 'Coming soon',
     href: '/pricing#get-started',
     highlight: false,
+    comingSoon: true,
     features: [
       'Everything in Free',
       'Full profile (description, hours, website)',
@@ -51,10 +52,11 @@ const TIERS = [
     price: 'R999',
     sub: '/mo',
     description: 'Stand out in search, generate leads and sell online.',
-    cta: 'Get Growth',
+    cta: 'Coming soon',
     href: '/pricing#get-started',
     highlight: true,
     badge: 'Most popular',
+    comingSoon: true,
     features: [
       'Everything in Starter',
       'Featured placement in category browse',
@@ -71,9 +73,10 @@ const TIERS = [
     price: 'R3,500',
     sub: '/mo',
     description: 'Maximum visibility and a dedicated team in your corner.',
-    cta: 'Get Pro',
+    cta: 'Coming soon',
     href: '/pricing#get-started',
     highlight: false,
+    comingSoon: true,
     features: [
       'Everything in Growth',
       'Homepage featured slot',
@@ -216,16 +219,25 @@ export default function PricingPage() {
                   ))}
                 </ul>
 
-                <Link
-                  href={tier.href}
-                  className="block text-center text-xs font-semibold py-2.5 rounded-lg transition-opacity hover:opacity-90"
-                  style={{
-                    background: tier.highlight ? '#3B82F6' : '#F59E0B',
-                    color: '#fff',
-                  }}
-                >
-                  {tier.cta}
-                </Link>
+                {tier.comingSoon ? (
+                  <div
+                    className="block text-center text-xs font-semibold py-2.5 rounded-lg"
+                    style={{ background: '#F1F5F9', color: '#94a3b8', cursor: 'default' }}
+                  >
+                    Coming soon
+                  </div>
+                ) : (
+                  <Link
+                    href={tier.href}
+                    className="block text-center text-xs font-semibold py-2.5 rounded-lg transition-opacity hover:opacity-90"
+                    style={{
+                      background: tier.highlight ? '#3B82F6' : '#F59E0B',
+                      color: '#fff',
+                    }}
+                  >
+                    {tier.cta}
+                  </Link>
+                )}
               </div>
             ))}
           </div>
