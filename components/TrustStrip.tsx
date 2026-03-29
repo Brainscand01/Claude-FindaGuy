@@ -7,7 +7,7 @@ const items = [
     ),
     bg: '#DCFCE7',
     title: 'Verified businesses',
-    sub: 'Every listing confirmed',
+    sub: 'Trust badge verified',
   },
   {
     icon: (
@@ -22,10 +22,10 @@ const items = [
   {
     icon: (
       <svg width="14" height="14" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#1D4ED8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
-    bg: '#EFF6FF',
+    bg: '#FEF2F2',
     title: 'Bad actors flagged',
     sub: 'Removed fast',
   },

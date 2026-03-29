@@ -37,17 +37,26 @@ export function Logo({ variant = 'full', size = 28 }: LogoProps) {
   )
 }
 
-/** Inline SVG logo icon (no network request) */
-export function LogoIcon({ size = 28 }: { size?: number }) {
+/** Logo icon — white background capsule ensures visibility on both dark and light navbars */
+export function LogoIcon({ size = 28, onDark = false }: { size?: number; onDark?: boolean }) {
   return (
     <div
-      className="rounded-md flex items-center justify-center flex-shrink-0"
-      style={{ width: size, height: size, background: '#F59E0B' }}
+      className="flex items-center justify-center flex-shrink-0 rounded-lg overflow-hidden"
+      style={{
+        width: size,
+        height: size,
+        background: onDark ? '#ffffff' : 'transparent',
+        padding: onDark ? 2 : 0,
+      }}
     >
-      <svg width={size * 0.57} height={size * 0.57} viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <rect x="1" y="1" width="6" height="6" rx="1.5" transform="rotate(45 6 3)" fill="white" opacity="0.9" />
-        <rect x="5" y="1" width="6" height="6" rx="1.5" transform="rotate(45 10 3)" fill="#0F2D5E" />
-      </svg>
+      <Image
+        src="/logo-icon.png"
+        alt="FindaGuy"
+        width={size}
+        height={size}
+        className="object-contain"
+        priority
+      />
     </div>
   )
 }

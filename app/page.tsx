@@ -8,6 +8,7 @@ import { SearchBar } from '@/components/SearchBar'
 import { CategoryGrid } from '@/components/CategoryGrid'
 import { TrustStrip } from '@/components/TrustStrip'
 import { BusinessCard } from '@/components/BusinessCard'
+import { LocalMakersCard } from '@/components/LocalMakersCard'
 import { createClient } from '@/lib/supabase/server'
 import type { Business } from '@/types'
 import { buildMetadata } from '@/lib/seo'
@@ -43,12 +44,6 @@ const STATS = [
   { value: 'Durban', label: '& growing' },
 ]
 
-const TIERS = [
-  { label: 'Free',    price: 'R0',      sub: '',    highlight: false },
-  { label: 'Starter', price: 'R299',    sub: '/mo', highlight: false },
-  { label: 'Growth',  price: 'R999',    sub: '/mo', highlight: false },
-  { label: 'Pro',     price: 'R3,500',  sub: '/mo', highlight: true  },
-]
 
 const MOCK_BUSINESSES: Business[] = [
   {
@@ -116,8 +111,17 @@ export default async function HomePage() {
           className="pt-16 pb-12 px-4 sm:px-6 text-center relative overflow-hidden"
           aria-label="Search for local businesses in Durban"
         >
-          <div className="absolute top-5 right-20 w-32 h-32 rounded-full opacity-[0.06]" style={{ background: '#F59E0B' }} aria-hidden="true" />
-          <div className="absolute bottom-0 left-10 w-20 h-20 rounded-full opacity-[0.08]" style={{ background: '#3B82F6' }} aria-hidden="true" />
+          {/* Decorative orbs */}
+          <div className="absolute -top-16 -right-16 w-[420px] h-[420px] rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%)' }} aria-hidden="true" />
+          <div className="absolute -bottom-20 -left-20 w-[360px] h-[360px] rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%)' }} aria-hidden="true" />
+          <div className="absolute top-1/2 -left-24 w-[280px] h-[280px] rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%)' }} aria-hidden="true" />
+          <div className="absolute -top-8 left-1/3 w-[240px] h-[240px] rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)' }} aria-hidden="true" />
+          <div className="absolute bottom-4 right-1/4 w-[200px] h-[200px] rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.10) 0%, transparent 70%)' }} aria-hidden="true" />
 
           <div className="max-w-3xl mx-auto relative">
             <div
@@ -171,11 +175,14 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* ── Trust strip ──────────────────────────── */}
+        <TrustStrip />
+
         {/* ── Categories ───────────────────────────── */}
         <CategoryGrid />
 
-        {/* ── Trust strip ──────────────────────────── */}
-        <TrustStrip />
+        {/* ── Local Makers spotlight ───────────────── */}
+        <LocalMakersCard />
 
         {/* ── Featured businesses ──────────────────── */}
         <section className="bg-page-bg py-8 px-4 sm:px-6" aria-label="Top businesses nearby">
@@ -209,52 +216,26 @@ export default async function HomePage() {
             </div>
 
             <h2 className="font-display font-black text-white text-2xl mb-2.5 leading-snug">
-              Your next customer is already<br />searching for you
+              Get your business found<br />on FindaGuy
             </h2>
-            <p className="text-sm mb-6 leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Join 2,400+ Durban businesses on FindaGuy.<br />Get found. Get reviews. Get growing.
+            <p className="text-sm mb-8 leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              Thousands of Durban residents search here every day.<br />Add your listing in minutes — free to start.
             </p>
 
-            <div className="flex flex-wrap justify-center gap-3 mb-8">
-              <Link
-                href="/auth/login?intent=list"
-                className="text-sm font-semibold px-7 py-3 rounded-lg text-white transition-opacity hover:opacity-90"
-                style={{ background: '#F59E0B' }}
-              >
-                Get listed free →
-              </Link>
+            <div className="flex justify-center mb-8">
               <Link
                 href="/pricing"
-                className="text-sm px-7 py-3 rounded-lg text-white transition-colors"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.2)' }}
+                className="text-sm font-semibold px-8 py-3 rounded-lg text-white transition-opacity hover:opacity-90"
+                style={{ background: '#F59E0B' }}
               >
-                View pricing
+                Add or claim your listing →
               </Link>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-3">
-              {TIERS.map((tier) => (
-                <div
-                  key={tier.label}
-                  className="rounded-lg px-5 py-2.5 text-center min-w-[80px]"
-                  style={{
-                    background: tier.highlight ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.06)',
-                    border: `0.5px solid ${tier.highlight ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.1)'}`,
-                  }}
-                >
-                  <div className="text-[11px] mb-0.5" style={{ color: tier.highlight ? 'rgba(245,158,11,0.6)' : 'rgba(255,255,255,0.35)' }}>
-                    {tier.label}
-                  </div>
-                  <div className="font-display font-black text-base" style={{ color: tier.highlight ? '#F59E0B' : '#fff' }}>
-                    {tier.price}
-                    {tier.sub && (
-                      <span className="text-[10px] font-normal" style={{ color: tier.highlight ? 'rgba(245,158,11,0.5)' : 'rgba(255,255,255,0.3)' }}>
-                        {tier.sub}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
+            <div className="flex flex-wrap justify-center gap-6 text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              <span>✓ Free forever on basic</span>
+              <span>✓ No credit card needed</span>
+              <span>✓ Live in under 5 minutes</span>
             </div>
           </div>
         </section>

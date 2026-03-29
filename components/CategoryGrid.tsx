@@ -3,12 +3,19 @@
 import Link from 'next/link'
 import { useRef, useState } from 'react'
 import { trackEvent } from '@/lib/analytics'
+import {
+  Home, UtensilsCrossed, Scissors, Car, HeartPulse, Zap,
+  Droplets, Briefcase, HardHat, Package, ShoppingBag, LayoutGrid,
+  type LucideIcon,
+} from 'lucide-react'
 
 const CATEGORIES = [
   {
     slug: 'home-services',
     name: 'Home services',
-    icon: '🔧',
+    icon: Home,
+    iconBg: '#EFF6FF',
+    iconColor: '#3B82F6',
     count: 342,
     subcategories: [
       { name: 'Plumbing', slug: 'plumbing' },
@@ -23,7 +30,9 @@ const CATEGORIES = [
   {
     slug: 'food-restaurants',
     name: 'Food & drink',
-    icon: '🍕',
+    icon: UtensilsCrossed,
+    iconBg: '#FFF7ED',
+    iconColor: '#F97316',
     count: 496,
     subcategories: [
       { name: 'Restaurants', slug: 'restaurants' },
@@ -37,7 +46,9 @@ const CATEGORIES = [
   {
     slug: 'beauty-wellness',
     name: 'Beauty',
-    icon: '💇',
+    icon: Scissors,
+    iconBg: '#FDF2F8',
+    iconColor: '#EC4899',
     count: 218,
     subcategories: [
       { name: 'Hair salons', slug: 'hair-salons' },
@@ -51,7 +62,9 @@ const CATEGORIES = [
   {
     slug: 'automotive',
     name: 'Automotive',
-    icon: '🚗',
+    icon: Car,
+    iconBg: '#F1F5F9',
+    iconColor: '#475569',
     count: 187,
     subcategories: [
       { name: 'Mechanics', slug: 'mechanics' },
@@ -65,7 +78,9 @@ const CATEGORIES = [
   {
     slug: 'health-medical',
     name: 'Health',
-    icon: '🏥',
+    icon: HeartPulse,
+    iconBg: '#FFF1F2',
+    iconColor: '#F43F5E',
     count: 156,
     subcategories: [
       { name: 'Doctors & GPs', slug: 'doctors' },
@@ -79,7 +94,9 @@ const CATEGORIES = [
   {
     slug: 'electrical',
     name: 'Electrical',
-    icon: '⚡',
+    icon: Zap,
+    iconBg: '#FFFBEB',
+    iconColor: '#F59E0B',
     count: 124,
     subcategories: [
       { name: 'Residential', slug: 'residential-electrical' },
@@ -92,7 +109,9 @@ const CATEGORIES = [
   {
     slug: 'plumbing',
     name: 'Plumbing',
-    icon: '🚿',
+    icon: Droplets,
+    iconBg: '#EFF6FF',
+    iconColor: '#0EA5E9',
     count: 76,
     subcategories: [
       { name: 'Emergency plumbing', slug: 'emergency-plumbing' },
@@ -105,7 +124,9 @@ const CATEGORIES = [
   {
     slug: 'professional-services',
     name: 'Professional',
-    icon: '💼',
+    icon: Briefcase,
+    iconBg: '#F0FDF4',
+    iconColor: '#16A34A',
     count: 289,
     subcategories: [
       { name: 'Accounting & tax', slug: 'accounting' },
@@ -119,7 +140,9 @@ const CATEGORIES = [
   {
     slug: 'construction-building',
     name: 'Construction',
-    icon: '🏗️',
+    icon: HardHat,
+    iconBg: '#FFF7ED',
+    iconColor: '#EA580C',
     count: 203,
     subcategories: [
       { name: 'Residential builds', slug: 'residential-builds' },
@@ -132,7 +155,9 @@ const CATEGORIES = [
   {
     slug: 'couriers-delivery',
     name: 'Couriers',
-    icon: '📦',
+    icon: Package,
+    iconBg: '#FAF5FF',
+    iconColor: '#9333EA',
     count: 67,
     subcategories: [
       { name: 'Same-day delivery', slug: 'same-day' },
@@ -144,7 +169,9 @@ const CATEGORIES = [
   {
     slug: 'local-makers',
     name: 'Local Makers',
-    icon: '🛒',
+    icon: ShoppingBag,
+    iconBg: '#FFFBEB',
+    iconColor: '#D97706',
     count: 134,
     isSpecial: true,
     badge: 'NEW',
@@ -161,8 +188,20 @@ const CATEGORIES = [
   },
 ]
 
+type Category = {
+  slug: string
+  name: string
+  icon: LucideIcon
+  iconBg: string
+  iconColor: string
+  count: number
+  isSpecial?: boolean
+  badge?: string
+  subcategories: { name: string; slug: string }[]
+}
+
 interface TileProps {
-  cat: (typeof CATEGORIES)[0]
+  cat: Category
   index: number
   total: number
 }
@@ -209,7 +248,13 @@ function CategoryTile({ cat, index, total }: TileProps) {
             {cat.badge}
           </span>
         )}
-        <div className="text-2xl mb-1.5" aria-hidden="true">{cat.icon}</div>
+        <div
+          className="w-11 h-11 rounded-2xl flex items-center justify-center mx-auto mb-2"
+          style={{ background: cat.iconBg }}
+          aria-hidden="true"
+        >
+          <cat.icon size={20} strokeWidth={1.75} color={cat.iconColor} />
+        </div>
         <div className="text-xs font-semibold leading-tight" style={{ color: '#0F2D5E' }}>
           {cat.name}
         </div>
@@ -264,15 +309,6 @@ function CategoryTile({ cat, index, total }: TileProps) {
 }
 
 export function CategoryGrid() {
-  const viewAll = {
-    slug: 'all',
-    name: 'View All',
-    icon: '→',
-    count: 0,
-    isViewAll: true,
-    subcategories: [],
-  }
-
   return (
     <section className="bg-page-bg py-8 px-4 sm:px-6" aria-label="Browse by category">
       <div className="max-w-7xl mx-auto">
@@ -293,7 +329,9 @@ export function CategoryGrid() {
             style={{ background: '#EFF6FF', borderColor: '#BFDBFE' }}
             aria-label="View all categories"
           >
-            <div className="text-2xl mb-1.5" aria-hidden="true">📋</div>
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center mx-auto mb-2" style={{ background: '#EFF6FF' }} aria-hidden="true">
+              <LayoutGrid size={20} strokeWidth={1.75} color="#3B82F6" />
+            </div>
             <div className="text-xs font-semibold" style={{ color: '#3B82F6' }}>View All</div>
             <div className="text-[10px] mt-0.5" style={{ color: '#94a3b8' }}>All categories</div>
           </Link>
